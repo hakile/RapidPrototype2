@@ -7,11 +7,18 @@ class LoseScreen extends Phaser.Scene {
         let sCY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
         this.header = this.add.text(sCX, -sCY*.2083, `Game Over!`, {font:`Bold ${.125*sCY}px Arial`,color:`#000`}).setOrigin(.5,0);
         this.go_desc = this.add.text(sCX, sCY, `You hit a slug!`, {font:`${.1667*sCY}px Arial`,color:`#000`}).setOrigin(.5).setAlpha(0);
-        this.cameras.main.fadeIn(1000, 255,255,255);
+        this.click_desc = this.add.text(sCX, sCY*1.5, `Tap anywhere to restart.`, {
+            font:`${.1*sCY}px Arial`,color:`#000`}).setOrigin(.5,1).setAlpha(0);
+        this.cameras.main.fadeIn(500, 0,0,0);
         this.time.delayedCall(1000, () => this.tweens.add({targets: this.header, y: sCY*.1042, duration: 2000, ease: 'Quint.Out'}));
         this.time.delayedCall(2000, () => this.tweens.add({targets: this.go_desc, alpha: 1, duration: 1250}));
-        this.time.delayedCall(4500, () => this.cameras.main.fade(1000, 255,255,255));
-        this.time.delayedCall(5500, () => this.scene.start('gameplayscreen'));
+        this.time.delayedCall(3000, () => this.tweens.add({targets: this.click_desc, alpha: 1, duration: 1250}));
+        
+        this.input.on('pointerdown', () => {
+            this.input.removeAllListeners();
+            this.cameras.main.fade(1000, 255,255,255,true);
+            this.time.delayedCall(1000, () => this.scene.start('gameplayscreen'));
+        })
     }
 }
 
@@ -22,28 +29,22 @@ class GameplayScreen extends Phaser.Scene {
     create() {
         let screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
         let screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
-        this.add.text(screenCenterX, screenCenterY, 'Gameplay: Two Slugs', {font:`${.125*screenCenterY}px Arial`,color:`#000`}).setOrigin(.5);
-        this.add.text(screenCenterX, screenCenterY + 100, 'Press left key to win. Press right key to lose.', {
-            font:`${.125*screenCenterY}px Arial`,color:`#000`
+        this.add.text(screenCenterX, screenCenterY, 'Gameplay: Two Slugs', {
+            font:`${.16*screenCenterY}px Arial`,color:`#000`}).setOrigin(.5);
+        this.add.text(screenCenterX, screenCenterY*1.3, 'Press left key to win. Press right key to lose.', {
+            font:`${.1*screenCenterY}px Arial`,color:`#000`
         }).setOrigin(.5);
         this.cameras.main.fadeIn(1000, 255,255,255);
-        this.cursors = this.input.keyboard.createCursorKeys();
-        /*this.input.on('pointerdown', () => {
-            this.cameras.main.fadeOut(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('victoryscreen'));
-        });*/
-    }
-    update() 
-    {
-        const {right, left} = this.cursors;
-        if (right.isDown)
-        {
-            this.scene.start('losescreen');
-        }
-        else if (left.isDown)
-        {
-            this.scene.start('victoryscreen')
-        }
+        this.input.keyboard.on('keydown-RIGHT', () => {
+            this.input.keyboard.removeAllListeners();
+            this.cameras.main.fade(500, 0,0,0, true);
+            this.time.delayedCall(500, () => this.scene.start('losescreen'));
+        });
+        this.input.keyboard.on('keydown-LEFT', () => {
+            this.input.keyboard.removeAllListeners();
+            this.cameras.main.fade(500, 0,0,0, true);
+            this.time.delayedCall(500, () => this.scene.start('victoryscreen'));
+        });
     }
 }
 
@@ -52,9 +53,18 @@ class VictoryScreen extends Phaser.Scene{
         super("victoryscreen")
     }
     create(){
-        this.victory =  this.add.text(640, 300, 'Victory!!',{font:'Bold 45px Arial',color: `#fce300`}).setOrigin(.5,0);
+        let sCX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+        let sCY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+        this.victory =  this.add.text(sCX, sCY*.25, 'Victory!',{font:`Bold ${.1667*sCY}px Arial`,color:`#ffdf40`,
+            stroke: `#000`,strokeThickness:.0139*sCY}).setOrigin(.5,0);
+        this.click_desc = this.add.text(sCX, sCY*1.5, `Tap anywhere to restart.`, {
+            font:`${.1*sCY}px Arial`,color:`#000`}).setOrigin(.5,1).setAlpha(0);
+        this.cameras.main.fadeIn(500, 0,0,0);
+        this.time.delayedCall(1500, () => this.tweens.add({targets: this.click_desc, alpha: 1, duration: 1250}));
+
         this.input.on('pointerdown', () => {
-            this.cameras.main.fadeOut(1000, 0,0,0);
+            this.input.removeAllListeners();
+            this.cameras.main.fade(1000, 255,255,255, true);
             this.time.delayedCall(1000, () => this.scene.start('gameplayscreen'));
         });
     }
